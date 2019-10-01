@@ -78,7 +78,7 @@ shooting <- function(x, y, tol = 10^(-2), maxIteration = 100, k=3.420, method='b
       wt[,j] <- sapply(resid/scaleVar[j], weights, k=k)
       fit <- univ_est(x[, j, drop=FALSE], ytilde, intercept=TRUE, k = k, rho = rho, weights = weights, delta = delta,
                       wt = wt[,j], tol= 10^(-6)*mad(y), prevresid=resid)
-                      # regression fit for variable j (I-steps done inside univ_est)
+      # regression fit for variable j (I-steps done inside univ_est)
       # update coefficient and intercept
       betaEst[j] <- fit$coef[2]
       intercept[j] <- fit$coef[1]
@@ -163,7 +163,7 @@ univ_est <- function(x, y, k, weights, rho, wt, delta, maxIteration = 500, inter
   fit
 }
 
-scale_iter <- function(u, kp, cc, initial.sc=median(abs(u))/.6745, rho, max.it = 200, tol = 1e-6) {
+scale_iter <- function(u, kp, cc, initial.sc=median(abs(u))/.6745, rho, max.it = 5000, tol = 1e-6) {
   # computation of M-scale estimate (see Salibian-Barrera and Yohai 2006 "A fast algorithm for S-Regression Estimates")
   # INPUT:  u: current residuals for which M-scale should be computed
   #         kp: constant for consistency of M-scale (E[Z]=kp)
@@ -205,7 +205,8 @@ lmrob.hubx <- function(x,y, chub=2) {
   mx <- attr(xx, "center")
   sx <- attr(xx, "scale")
   xh <- data.frame(apply(xx,2,function(x) pmin(pmax(x,-chub),chub))) # Huberization
-  rr <- lmrob(y~.,data=cbind(y,xh), setting="KS2011") # MM-estimation
+  rr <- lmrob(y~.,data=cbind(y,xh), setting="KS2011", k.max = 100000,
+              max.it = 5000, maxit.scale = 1000000) # MM-estimation
 
   # backtransform
   coeforig <- rr$coef[-1]/sx
