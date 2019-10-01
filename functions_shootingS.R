@@ -208,6 +208,14 @@ lmrob.hubx <- function(x,y, chub=2) {
   rr <- lmrob(y~.,data=cbind(y,xh), setting="KS2011", k.max = 100000,
               max.it = 5000, maxit.scale = 1000000) # MM-estimation
 
+  # if there are NA coefficients, set them to 0
+  # (The rationale is that an NA coefficient may be caused by instability in
+  # the corresponding variable.  So setting it to 0 could be a strategy to
+  # avoid that such a variable has too much influence on the algorithm and the
+  # predictions.  However, I'm not sure if this is a reasonable thing to do in
+  # all sorts of situations.)
+  rr$coef[is.na(rr$coef)] <- 0
+
   # backtransform
   coeforig <- rr$coef[-1]/sx
   coeforigalpha <- rr$coef[1] - sum(coeforig * mx)
